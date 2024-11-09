@@ -1,5 +1,7 @@
 import {Component} from 'react'
 
+import HistoryItem from '../HistoryItem'
+
 import './index.css'
 
 const initialHistoryList = [
@@ -80,15 +82,14 @@ const initialHistoryList = [
 // Replace your code here
 class BrowserHistory extends Component {
   state = {
+    searchInput: '',
     historyList: initialHistoryList,
   }
 
   onChangeSearchInput = event => {
-    const searchInput = event.target.value
-    const searchResults = initialHistoryList.filter(eachHistory =>
-      eachHistory.title.toLowerCase().includes(searchInput.toLowerCase()),
-    )
-    this.setState({historyList: searchResults})
+    this.setState({
+      searchInput: event.target.value,
+    })
   }
 
   deleteHistory = id => {
@@ -100,8 +101,11 @@ class BrowserHistory extends Component {
   }
 
   render() {
-    const {historyList} = this.state
-
+    const {searchInput, historyList} = this.state
+    const searchResults = historyList.filter(eachHistory =>
+      eachHistory.title.toLowerCase().includes(searchInput.toLowerCase()),
+    )
+    
     return (
       <div className="app-container">
         <div className="head-container">
@@ -121,6 +125,7 @@ class BrowserHistory extends Component {
               placeholder="Search history"
               className="search-box"
               onChange={this.onChangeSearchInput}
+              value={searchInput}
             />
           </div>
         </div>
@@ -131,35 +136,12 @@ class BrowserHistory extends Component {
             </div>
           ) : (
             <ul className="lists-container">
-              {historyList.map(eachHistory => (
-                <li key={eachHistory.id} className="list-container">
-                  <p className="time-accessed">{eachHistory.timeAccessed}</p>
-                  <div className="history-details-container">
-                    <div className="domain-details-container">
-                      <img
-                        src={eachHistory.logoUrl}
-                        alt="domain logo"
-                        className="domain-logo"
-                      />
-                      <div className="domain-url-text">
-                        <p className="history-details">{eachHistory.title}</p>
-                        <p className="domain-url">{eachHistory.domainUrl}</p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      data-testid="delete"
-                      className="delete-btn"
-                      onClick={() => this.deleteHistory(eachHistory.id)}
-                    >
-                      <img
-                        src="https://assets.ccbp.in/frontend/react-js/delete-img.png"
-                        alt="delete"
-                        className="delete-icon"
-                      />
-                    </button>
-                  </div>
-                </li>
+              {searchResults.map(eachHistory => (
+                <HistoryItem
+                  key={eachHistory.id}
+                  historyDetails={eachHistory}
+                  deleteHistory={this.deleteHistory}
+                />
               ))}
             </ul>
           )}
